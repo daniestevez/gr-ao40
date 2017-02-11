@@ -26,6 +26,8 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND ao40_sources
+    syncframe_impl.cc
+    deinterleaver_impl.cc
 )
 
 set(ao40_sources "${ao40_sources}" PARENT_SCOPE)
@@ -53,26 +55,26 @@ GR_LIBRARY_FOO(gnuradio-ao40 RUNTIME_COMPONENT "ao40_runtime" DEVEL_COMPONENT "a
 ########################################################################
 # Build and register unit test
 ########################################################################
-include(GrTest)
+#include(GrTest)
 
-include_directories(${CPPUNIT_INCLUDE_DIRS})
+#include_directories(${CPPUNIT_INCLUDE_DIRS})
 
-list(APPEND test_ao40_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_ao40.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/qa_ao40.cc
-)
+#list(APPEND test_ao40_sources
+#    ${CMAKE_CURRENT_SOURCE_DIR}/test_ao40.cc
+#    ${CMAKE_CURRENT_SOURCE_DIR}/qa_ao40.cc
+#)
 
-add_executable(test-ao40 ${test_ao40_sources})
+#add_executable(test-ao40 ${test_ao40_sources})
 
-target_link_libraries(
-  test-ao40
-  ${GNURADIO_RUNTIME_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${CPPUNIT_LIBRARIES}
-  gnuradio-ao40
-)
+#target_link_libraries(
+#  test-ao40
+#  ${GNURADIO_RUNTIME_LIBRARIES}
+#  ${Boost_LIBRARIES}
+#  ${CPPUNIT_LIBRARIES}
+#  gnuradio-ao40
+#)
 
-GR_ADD_TEST(test_ao40 test-ao40)
+#GR_ADD_TEST(test_ao40 test-ao40)
 
 ########################################################################
 # Print summary

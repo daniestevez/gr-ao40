@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>Synchronize frame</name>
+  <key>ao40_syncframe</key>
+  <category>[ao40]</category>
+  <import>import ao40</import>
+  <make>ao40.syncframe()</make>
+
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

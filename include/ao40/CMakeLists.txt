@@ -22,5 +22,6 @@
 ########################################################################
 install(FILES
     api.h
-    DESTINATION include/ao40
+    syncframe.h
+    deinterleaver.h DESTINATION include/ao40
 )

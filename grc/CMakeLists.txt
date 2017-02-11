@@ -18,5 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    DESTINATION share/gnuradio/grc/blocks
+    ao40_syncframe.xml
+    ao40_deinterleaver.xml DESTINATION share/gnuradio/grc/blocks
 )

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>Deinterleaver</name>
+  <key>ao40_deinterleaver</key>
+  <category>[ao40]</category>
+  <import>import ao40</import>
+  <make>ao40.deinterleaver()</make>
+ 
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>
