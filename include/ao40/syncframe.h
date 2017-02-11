@@ -45,7 +45,7 @@ namespace gr {
        * class. ao40::syncframe::make is the public interface for
        * creating new instances.
        */
-      static sptr make();
+      static sptr make(int threshold);
     };
 
   } // namespace ao40

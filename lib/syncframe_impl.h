@@ -29,9 +29,10 @@ namespace gr {
     class syncframe_impl : public syncframe
     {
      private:
+      int d_threshold;
             
      public:
-      syncframe_impl();
+      syncframe_impl(int threshold);
       ~syncframe_impl();
 
       // Where all the action really happens

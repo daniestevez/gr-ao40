@@ -27,26 +27,26 @@
 
 #define SYNCLEN 65
 #define STEP 80
-#define THRESHOLD 0
 
 namespace gr {
   namespace ao40 {
 
     syncframe::sptr
-    syncframe::make()
+    syncframe::make(int threshold)
     {
       return gnuradio::get_initial_sptr
-        (new syncframe_impl());
+        (new syncframe_impl(threshold));
     }
 
     /*
      * The private constructor
      */
-    syncframe_impl::syncframe_impl()
+    syncframe_impl::syncframe_impl(int threshold)
       : gr::sync_block("syncframe",
               gr::io_signature::make(1, 1, sizeof(uint8_t)),
               gr::io_signature::make(0, 0, 0))
     {
+      d_threshold = threshold;
       set_history(SYNCLEN * STEP);
 
       message_port_register_out(pmt::mp("out"));
@@ -76,7 +76,7 @@ namespace gr {
 	for (int j = 0; j < SYNCLEN; j++) {
 	  match += (in[i + j * STEP] & 1) ^ syncword[j];
 	}
-	if (match >= SYNCLEN - THRESHOLD) {
+	if (match >= SYNCLEN - d_threshold) {
 	  // sync found
 	  message_port_pub(pmt::mp("out"),
 			   pmt::cons(pmt::PMT_NIL,

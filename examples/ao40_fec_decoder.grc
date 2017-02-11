@@ -254,7 +254,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(152, 208)</value>
+      <value>(152, 204)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -271,6 +271,10 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>8</value>
     </param>
   </block>
   <block>

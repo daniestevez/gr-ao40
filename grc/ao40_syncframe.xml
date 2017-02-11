@@ -4,7 +4,14 @@
   <key>ao40_syncframe</key>
   <category>[ao40]</category>
   <import>import ao40</import>
-  <make>ao40.syncframe()</make>
+  <make>ao40.syncframe($threshold)</make>
+
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
 
   <sink>
     <name>in</name>
