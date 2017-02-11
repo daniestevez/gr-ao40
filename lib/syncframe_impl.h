@@ -23,6 +23,8 @@
 
 #include <ao40/syncframe.h>
 
+#define SYNCLEN 65
+
 namespace gr {
   namespace ao40 {
 
@@ -30,6 +32,7 @@ namespace gr {
     {
      private:
       int d_threshold;
+      static const uint8_t d_syncword[SYNCLEN];
             
      public:
       syncframe_impl(int threshold);

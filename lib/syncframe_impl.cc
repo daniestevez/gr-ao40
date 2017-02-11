@@ -25,7 +25,6 @@
 #include <gnuradio/io_signature.h>
 #include "syncframe_impl.h"
 
-#define SYNCLEN 65
 #define STEP 80
 
 namespace gr {
@@ -37,6 +36,10 @@ namespace gr {
       return gnuradio::get_initial_sptr
         (new syncframe_impl(threshold));
     }
+
+    const uint8_t syncframe_impl::d_syncword[] =
+      {1,1,1,1,1,1,1,0,0,0,0,1,1,1,0,1,1,1,1,0,0,1,0,1,1,0,0,1,0,0,
+      1,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,0,0,0,1,0,1,1,1,0,1,0,1,1,0,1,1,0,0,0};
 
     /*
      * The private constructor
@@ -64,9 +67,6 @@ namespace gr {
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
-      const uint8_t syncword[SYNCLEN] =
-	{1,1,1,1,1,1,1,0,0,0,0,1,1,1,0,1,1,1,1,0,0,1,0,1,1,0,0,1,0,0,
-	 1,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,0,0,0,1,0,1,1,1,0,1,0,1,1,0,1,1,0,0,0};
       int match;
 
       const uint8_t *in = (const uint8_t *) input_items[0];
@@ -74,7 +74,7 @@ namespace gr {
       for (int i = 0; i < noutput_items; i++) {
 	match = 0;
 	for (int j = 0; j < SYNCLEN; j++) {
-	  match += (in[i + j * STEP] & 1) ^ syncword[j];
+	  match += (in[i + j * STEP] & 1) ^ d_syncword[j];
 	}
 	if (match >= SYNCLEN - d_threshold) {
 	  // sync found
