@@ -13,7 +13,7 @@ button).
 
 ## Requirements
 
- * [gr-libfec](https://github.com/daniestevez/gr-libfec)
+ * [libfec](https://github.com/daniestevez/libfec)
  * The CCSDS descrambler hierarchical block from
    [gr-satellites](https://github.com/daniestevez/gr-satellites)
  
