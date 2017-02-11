@@ -28,6 +28,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND ao40_sources
     syncframe_impl.cc
     deinterleaver_impl.cc
+    rs_decoder_impl.cc
 )
 
 set(ao40_sources "${ao40_sources}" PARENT_SCOPE)
@@ -37,7 +38,7 @@ if(NOT ao40_sources)
 endif(NOT ao40_sources)
 
 add_library(gnuradio-ao40 SHARED ${ao40_sources})
-target_link_libraries(gnuradio-ao40 ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-ao40 fec ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
 set_target_properties(gnuradio-ao40 PROPERTIES DEFINE_SYMBOL "gnuradio_ao40_EXPORTS")
 
 if(APPLE)

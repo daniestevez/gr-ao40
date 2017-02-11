@@ -23,5 +23,6 @@
 install(FILES
     api.h
     syncframe.h
-    deinterleaver.h DESTINATION include/ao40
+    deinterleaver.h
+    rs_decoder.h DESTINATION include/ao40
 )
