@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<block>
+  <name>FUNcube Telemetry Parser</name>
+  <key>funcube_telemetry_parser</key>
+  <category>[funcube]</category>
+  <import>import ao40</import>
+  <make>ao40.funcube_telemetry_parser()</make>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+</block>

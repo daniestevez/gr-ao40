@@ -20,5 +20,6 @@
 install(FILES
     ao40_syncframe.xml
     ao40_deinterleaver.xml
-    ao40_rs_decoder.xml DESTINATION share/gnuradio/grc/blocks
+    ao40_rs_decoder.xml
+    ao40_funcube_telemetry_parser.xml DESTINATION share/gnuradio/grc/blocks
 )

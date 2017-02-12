@@ -32,3 +32,4 @@ except ImportError:
 
 # import any pure python here
 #
+from funcube_telemetry_parser import funcube_telemetry_parser

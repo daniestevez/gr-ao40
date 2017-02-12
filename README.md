@@ -16,4 +16,4 @@ button).
  * [libfec](https://github.com/daniestevez/libfec)
  * The CCSDS descrambler hierarchical block from
    [gr-satellites](https://github.com/daniestevez/gr-satellites)
- 
+ * [construct](http://construct.readthedocs.io/en/latest/), at least version 2.8.
