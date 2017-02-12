@@ -134,10 +134,22 @@ RealTime = BitStruct(
     'sw' / SW,
     )
 
+HighResolution = BitStruct(
+    'sunsensor' / BitsInteger(10)[5],
+    'photocurrent' / BitsInteger(15),
+    'batteryvoltage' / BitsInteger(15),
+    )
+
+HRPayload = HighResolution[20]
+
 Frame = Struct(
     Embedded(Header),
     'realtime' / RealTime,
-    'payload' / Bytes(200),
+    'payload' / Switch(lambda c: c.frametype[:2], {
+        'WO' : Bytes(200),
+        'HR' : HRPayload,
+        'FM' : String(200),
+        }),
     )
 
 FitterMessage = String(200)

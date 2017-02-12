@@ -62,7 +62,11 @@ class funcube_telemetry_parser(gr.basic_block):
             if data.frametype[:2] == 'FM':
                 print 'Fitter Message {}'.format(data.frametype[2])
                 print '-'*40
-                print(funcube_telemetry.FitterMessage.parse(data.payload))
+                print(data.payload)
+            if data.frametype[:2] == 'HR':
+                print 'High resolution {}'.format(data.frametype[2])
+                print '-'*40
+                print(data.payload)
             print
         else:
             print 'Could not parse beacon'
