@@ -68,7 +68,7 @@ Header = BitStruct(
     'frametype' / FrameType,
     )
 
-EPS = Struct(
+EPSFC1 = Struct(
     'photovoltage' / BitsInteger(16)[3],
     'photocurrent' / BitsInteger(16),
     'batteryvoltage' / BitsInteger(16),
@@ -112,7 +112,7 @@ Ants = Struct(
     'deployment' / Flag[4],
     )
 
-SW = Struct(
+SWFC1 = Struct(
     'seqnumber' / BitsInteger(24),
     'dtmfcmdcount' / BitsInteger(6),
     'dtmflastcmd' / BitsInteger(5),
@@ -125,13 +125,13 @@ SW = Struct(
     'deploymentwait' / Flag,
     )
 
-RealTime = BitStruct(
-    'eps' / EPS,
+RealTimeFC1 = BitStruct(
+    'eps' / EPSFC1,
     'bob' / BOB,
     'rf' / RF,
     'pa' / PA,
     'ants' / Ants,
-    'sw' / SW,
+    'sw' / SWFC1,
     )
 
 HighResolution = BitStruct(
@@ -142,7 +142,7 @@ HighResolution = BitStruct(
 
 HRPayload = HighResolution[20]
 
-WholeOrbit = BitStruct(
+WholeOrbitFC1 = BitStruct(
     'tempthermistor' / BitsInteger(12)[4],
     'solarpaneltemp' / BitsInteger(10)[4],
     'photovoltage' / BitsInteger(16)[3],
@@ -153,15 +153,86 @@ WholeOrbit = BitStruct(
 
 Callsign = String(8)
 
+FC2BatteryCommon = Struct(
+    'current' / Octet,
+    'cellvolts' / Octet,
+    'voltage' / Octet,
+    )
+
+FC2Battery = Struct(
+    'direction' / Flag,
+    Embedded(FC2BatteryCommon),
+    'temp' / Octet,
+    )
+
+EPSFC2 = Struct(
+    'sunlight' / Flag,
+    'solarcurrent' / BitsInteger(10)[12],
+    'solartemp' / Octet,
+    'batteries' / FC2Battery[3],
+    'batteryheater' / Flag,
+    )
+
+SWFC2 = Struct(
+    'seqnumber' / BitsInteger(24),
+    'dtmfcmdcount' / BitsInteger(6),
+    'dtmflastcmd' / BitsInteger(5),
+    'dtmfcmdsuccess' / Flag,
+    )
+
+RealTimeFC2 = BitStruct(
+    'eps' / EPSFC2,
+    'antstimeout' / Octet,
+    'antsstatus' / BitsInteger(3)[4],
+    'antstemp' / Octet,
+    'rf' / RF,
+    'pa' / PA,
+    'magnetometer' / BitsInteger(16)[3],
+    'magnetometertemp' / BitsInteger(10),
+    Padding(9),
+    'sw' / SWFC2,
+    )
+
+FC2Battery0 = Struct(
+    Embedded(FC2BatteryCommon),
+    'temp' / Octet,
+    )
+
+FC2Battery2 = Struct(
+    'direction' / Flag,
+    Embedded(FC2BatteryCommon),
+    )
+
+WholeOrbitFC2 = BitStruct(
+    'tempthermistor' / BitsInteger(12)[4],
+    'solartemps' / BitsInteger(8)[5],
+    'battery0' / FC2Battery0,
+    'battery1' / FC2Battery,
+    'battery2' / FC2Battery2,
+    Padding(6),
+    )
+
 Frame = Struct(
     Embedded(Header),
-    'realtime' / RealTime,
+    'realtime' / Switch(lambda c: c.satid, {
+        'FC1EM' : RealTimeFC1,
+        'FC1FM' : RealTimeFC1,
+        'FC2' : RealTimeFC2,
+        'extended' : Bytes(55),
+        }),
     'payload' / Switch(lambda c: c.frametype[:2], {
         'WO' : Bytes(200),
         'HR' : HRPayload,
         'FM' : String(200),
         }),
     )
+
+def WholeOrbit(satid):
+    if satid == 'FC1EM' or satid == 'FC1FM':
+        return WholeOrbitFC1
+    if satid == 'FC2':
+        return WholeOrbitFC2
+    return Bytes(23)
 
 FitterMessage = String(200)
 

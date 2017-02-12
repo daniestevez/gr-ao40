@@ -28,6 +28,10 @@ import pmt
 import funcube_telemetry
 import struct
 
+WHOLEORBIT_SIZE = 23
+PAYLOAD_SIZE = 200
+WHOLEORBIT_MAX = 12
+
 class funcube_telemetry_parser(gr.basic_block):
     """
     docstring for block telemetry_parser
@@ -71,8 +75,8 @@ class funcube_telemetry_parser(gr.basic_block):
                 print(data.payload)
             if data.frametype[:2] == 'WO':
                 chunk = int(data.frametype[2:])
-                seq = data.realtime.sw.seqnumber
-                remaining = (200*chunk) % 23
+                seq = data.realtime.search('seqnumber')
+                remaining = (PAYLOAD_SIZE*chunk) % WHOLEORBIT_SIZE
                 recover = True
                 if chunk != 0:
                     if self.last_chunk == chunk - 1 and self.last_seq == seq:
@@ -80,12 +84,12 @@ class funcube_telemetry_parser(gr.basic_block):
                         wo = self.last_wo + data.payload[:-remaining]
                     else:
                         recover = False
-                        last_chunk_remaining = (200*(chunk-1)) % 23
-                        wo = data.payload[23-last_chunk_remaining:-remaining]
+                        last_chunk_remaining = (PAYLOAD_SIZE*(chunk-1)) % WHOLEORBIT_SIZE
+                        wo = data.payload[WHOLEORBIT_SIZE-last_chunk_remaining:-remaining]
                 else:
                     wo = data.payload[:-remaining]
-                assert len(wo) % 23 == 0
-                wos = funcube_telemetry.WholeOrbit[len(wo) / 23].parse(wo)
+                assert len(wo) % WHOLEORBIT_SIZE == 0
+                wos = funcube_telemetry.WholeOrbit(data.satid)[len(wo) / WHOLEORBIT_SIZE].parse(wo)
                 self.last_chunk = chunk
                 self.last_wo = data.payload[-remaining:]
                 self.last_seq = seq
@@ -94,7 +98,7 @@ class funcube_telemetry_parser(gr.basic_block):
                     print '(could not recover data from previous beacon)'
                 print '-'*40
                 print wos
-                if chunk == 12:
+                if chunk == WHOLEORBIT_MAX:
                     print '-'*40
                     # callsign included
                     print 'Callsign: {}'.format(funcube_telemetry.Callsign.parse(self.last_wo))
