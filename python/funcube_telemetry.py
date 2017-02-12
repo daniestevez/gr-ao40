@@ -142,6 +142,17 @@ HighResolution = BitStruct(
 
 HRPayload = HighResolution[20]
 
+WholeOrbit = BitStruct(
+    'tempthermistor' / BitsInteger(12)[4],
+    'solarpaneltemp' / BitsInteger(10)[4],
+    'photovoltage' / BitsInteger(16)[3],
+    'photocurrent' / BitsInteger(16),
+    'batteryvoltage' / BitsInteger(16),
+    'systemcurrent' / BitsInteger(16),
+)
+
+Callsign = String(8)
+
 Frame = Struct(
     Embedded(Header),
     'realtime' / RealTime,

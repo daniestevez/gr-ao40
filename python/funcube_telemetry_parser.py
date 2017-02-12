@@ -40,6 +40,8 @@ class funcube_telemetry_parser(gr.basic_block):
 
         self.message_port_register_in(pmt.intern('in'))
         self.set_msg_handler(pmt.intern('in'), self.handle_msg)
+        self.last_chunk = None
+        self.last_seq = None
 
     def handle_msg(self, msg_pmt):
         msg = pmt.cdr(msg_pmt)
@@ -67,6 +69,35 @@ class funcube_telemetry_parser(gr.basic_block):
                 print 'High resolution {}'.format(data.frametype[2])
                 print '-'*40
                 print(data.payload)
+            if data.frametype[:2] == 'WO':
+                chunk = int(data.frametype[2:])
+                seq = data.realtime.sw.seqnumber
+                remaining = (200*chunk) % 23
+                recover = True
+                if chunk != 0:
+                    if self.last_chunk == chunk - 1 and self.last_seq == seq:
+                        # can recover for last WO packet
+                        wo = self.last_wo + data.payload[:-remaining]
+                    else:
+                        recover = False
+                        last_chunk_remaining = (200*(chunk-1)) % 23
+                        wo = data.payload[23-last_chunk_remaining:-remaining]
+                else:
+                    wo = data.payload[:-remaining]
+                assert len(wo) % 23 == 0
+                wos = funcube_telemetry.WholeOrbit[len(wo) / 23].parse(wo)
+                self.last_chunk = chunk
+                self.last_wo = data.payload[-remaining:]
+                self.last_seq = seq
+                print 'Whole orbit {}'.format(chunk)
+                if not recover:
+                    print '(could not recover data from previous beacon)'
+                print '-'*40
+                print wos
+                if chunk == 12:
+                    print '-'*40
+                    # callsign included
+                    print 'Callsign: {}'.format(funcube_telemetry.Callsign.parse(self.last_wo))
             print
         else:
             print 'Could not parse beacon'
