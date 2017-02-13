@@ -83,32 +83,109 @@ EPSFC1 = Struct(
     'MPPTmode' / Octet,
     )
 
+class TempXpAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-158.239)/-0.2073)
+    def _decode(self, obj, context):
+        return -0.2073*obj + 158.239
+TempXp = TempXpAdapter(BitsInteger(10))
+class TempXmAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-159.227)/-0.2083)
+    def _decode(self, obj, context):
+        return -0.2083*obj + 159.227
+TempXm = TempXmAdapter(BitsInteger(10))
+class TempYpAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-158.656)/-0.2076)
+    def _decode(self, obj, context):
+        return -0.2076*obj + 158.656
+TempYp = TempYpAdapter(BitsInteger(10))
+class TempYmAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-159.045)/-0.2087)
+    def _decode(self, obj, context):
+        return -0.2087*obj + 159.045
+TempYm = TempYmAdapter(BitsInteger(10))
+
+class V3v3Adapter(Adapter):
+    def _encode(self, obj, context):
+        return int(obj/4.0)
+    def _decode(self, obj, context):
+        return 4*obj
+V3v3 = V3v3Adapter(BitsInteger(10))
+
+class V5vAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int(obj/6.0)
+    def _decode(self, obj, context):
+        return 6*obj
+V5v = V5vAdapter(BitsInteger(10))
+
 BOB = Struct(
     'sunsensor' / BitsInteger(10)[3],
-    'paneltemp' / BitsInteger(10)[4],
-    '3v3voltage' / BitsInteger(10),
+    'paneltempX+' / TempXp,
+    'paneltempX-' / TempXm,
+    'paneltempY+' / TempYp,
+    'paneltempY-' / TempYm,
+    '3v3voltage' / V3v3,
     '3v3current' / BitsInteger(10),
-    '5voltage' / BitsInteger(10),
+    '5voltage' / V5v,
 )
+
+class RFTempAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-193.672)/-0.857)
+    def _decode(self, obj, context):
+        return -0.857*obj + 193.672
+RFTemp = RFTempAdapter(Octet)
+
+class RXCurrAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int(obj/0.636)
+    def _decode(self, obj, context):
+        return 0.636*obj
+RXCurr = RXCurrAdapter(Octet)
+
+class TXCurrAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int(obj/1.272)
+    def _decode(self, obj, context):
+        return 1.272*obj
+TXCurr = TXCurrAdapter(Octet)
 
 RF = Struct(
     'rxdoppler' / Octet,
     'rxrssi' / Octet,
-    'temp' / Octet,
-    'rxcurrent' / Octet,
-    'tx3v3current' / Octet,
-    'tx5vcurrent' / Octet,
+    'temp' / RFTemp,
+    'rxcurrent' / RXCurr,
+    'tx3v3current' / RXCurr,
+    'tx5vcurrent' / TXCurr,
     )
 
+class PwrAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj/5e-3)**(1.0/2.0629))
+    def _decode(self, obj, context):
+        return 5e-3*obj**2.0629
+Pwr = PwrAdapter(Octet)
+
+class PACurrAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-2.5435)/0.5496)
+    def _decode(self, obj, context):
+        return 0.5496*obj + 2.5435
+PACurr = PACurrAdapter(Octet)
+
 PA = Struct(
-    'revpwr' / Octet,
-    'fwdpwr' / Octet,
-    'boardtemp' / Octet,
-    'boardcurr' / Octet,
+    'revpwr' / Pwr,
+    'fwdpwr' / Pwr,
+    'boardtemp' / Octet, # TODO use lookup table
+    'boardcurr' / PACurr,
     )
 
 Ants = Struct(
-    'temp' / Octet[2],
+    'temp' / Octet[2], # TODO use ISIS manual
     'deployment' / Flag[4],
     )
 
@@ -142,9 +219,40 @@ HighResolution = BitStruct(
 
 HRPayload = HighResolution[20]
 
+class TempBlackChassisAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-75.244)/-0.024)
+    def _decode(self, obj, context):
+        return -0.024*obj + 75.244
+TempBlackChassis = TempBlackChassisAdapter(BitsInteger(12))
+class TempSilverChassisAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-74.750)/-0.024)
+    def _decode(self, obj, context):
+        return -0.024*obj + 74.750
+TempSilverChassis = TempSilverChassisAdapter(BitsInteger(12))
+class TempBlackPanelAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-75.039)/-0.024)
+    def _decode(self, obj, context):
+        return -0.024*obj + 75.039
+TempBlackPanel = TempBlackPanelAdapter(BitsInteger(12))
+class TempSilverPanelAdapter(Adapter):
+    def _encode(self, obj, context):
+        return int((obj-75.987)/-0.024)
+    def _decode(self, obj, context):
+        return -0.024*obj + 75.987
+TempSilverPanel = TempSilverPanelAdapter(BitsInteger(12))
+
 WholeOrbitFC1 = BitStruct(
-    'tempthermistor' / BitsInteger(12)[4],
-    'solarpaneltemp' / BitsInteger(10)[4],
+    'tempblackchassis' / TempBlackChassis,
+    'tempsilverchassis' / TempSilverChassis,
+    'tempblackpanel' / TempBlackPanel,
+    'tempsilverpanel' / TempSilverPanel,
+    'paneltempX+' / TempXp,
+    'paneltempX-' / TempXm,
+    'paneltempY+' / TempYp,
+    'paneltempY-' / TempYm,
     'photovoltage' / BitsInteger(16)[3],
     'photocurrent' / BitsInteger(16),
     'batteryvoltage' / BitsInteger(16),
