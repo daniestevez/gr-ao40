@@ -155,7 +155,6 @@ Callsign = String(8)
 
 FC2BatteryCommon = Struct(
     'current' / Octet,
-    'cellvolts' / Octet,
     'voltage' / Octet,
     )
 
@@ -183,13 +182,24 @@ SWFC2 = Struct(
 RealTimeFC2 = BitStruct(
     'eps' / EPSFC2,
     'antstimeout' / Octet,
-    'antsstatus' / BitsInteger(3)[4],
+    'antsstatus' / BitsInteger(12),
     'antstemp' / Octet,
     'rf' / RF,
     'pa' / PA,
-    'magnetometer' / BitsInteger(16)[3],
-    'magnetometertemp' / BitsInteger(10),
-    Padding(9),
+    'amacmode' / BitsInteger(3),
+    'magnetometer' / BitsInteger(12)[3],
+    'funtrxenable' / Flag,
+    'funtrxsampleenable' / Flag,
+    'modemanagermode' / BitsInteger(3),
+    'modemanagercommsnominal' / Flag,
+    'modemanagercommsstate' / BitsInteger(2),
+    'tmtcmanageridleenable' / Flag,
+    'tmtceventforwarding' / Flag,
+    'tcbufferreceiveenable' / BitsInteger(3),
+    'tcbuffersendenable' / BitsInteger(3),
+    'obcsoftresetcount' / Octet,
+    'epshardresetcount' / Octet,
+    Padding(20),
     'sw' / SWFC2,
     )
 
