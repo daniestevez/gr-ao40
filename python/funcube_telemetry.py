@@ -55,6 +55,32 @@ FrameType = Enum(BitsInteger(6),\
     FM8 = 22,\
     FM9 = 23)
 
+FrameTypeNayif1 = Enum(BitsInteger(6),\
+    WO1 = 0,\
+    WO2 = 1,\
+    WO3 = 2,\
+    WO4 = 3,\
+    WO5 = 4,\
+    WO6 = 5,\
+    WO7 = 6,\
+    WO8 = 7,\
+    WO9 = 8,\
+    WO10 = 9,\
+    WO11 = 10,\
+    WO12 = 11,\
+    HR1 = 12,\
+    HR2 = 13,\
+    HR3 = 14,\
+    HR4 = 15,\
+    HR5 = 16,\
+    FM1 = 17,\
+    FM2 = 18,\
+    FM3 = 19,\
+    FM4 = 20,\
+    FM5 = 21,\
+    FM6 = 22,\
+    FM7 = 23)
+
 class FrameTypeAdapter(Adapter):
     def _encode(self, obj, context):
         return obj.value
@@ -65,7 +91,7 @@ FrameTypeField = FrameTypeAdapter(BitsInteger(6))
 
 Header = BitStruct(
     'satid' / SatID,
-    'frametype' / FrameType,
+    'frametype' / IfThenElse(lambda c: c.satid != 'extended', FrameType, FrameTypeNayif1),
     )
 
 EPSFC1 = Struct(
@@ -81,6 +107,33 @@ EPSFC1 = Struct(
     'latchupcount3v3' / Octet,
     'resetcause' / Octet,
     'MPPTmode' / Octet,
+    )
+
+EPSNayif1 = Struct(
+    'photovoltage' / BitsInteger(14)[3],
+    'batteryvoltage' / BitsInteger(14),
+    'photocurrent' / BitsInteger(10)[3],
+    'totalphotocurrent' / BitsInteger(10),
+    'systemcurrent' / BitsInteger(10),
+    'rebootcount' / Octet,
+    'boostconvertertemp' / Octet[3],
+    'batterytemp' / Octet,
+    'latchupcount5v' / Octet,
+    'channelcurrent5v' / Octet,
+    'resetcause' / BitsInteger(4),
+    'MPTTmode' / BitsInteger(4),
+    )
+
+iMTQMode = Enum(BitsInteger(2),\
+                idle = 0,\
+                selftest = 1,\
+                detumble= 2)
+
+iMTQ = Struct(
+    'imtqmode' / iMTQMode,
+    'imtqerrorcode' / BitsInteger(3),
+    'imtqconfigurationset' / BitsInteger(1),
+    'imtqmcutemperature' / Octet,
     )
 
 class TempXpAdapter(Adapter):
@@ -122,6 +175,7 @@ class V5vAdapter(Adapter):
         return 6*obj
 V5v = V5vAdapter(BitsInteger(10))
 
+# FC1
 BOB = Struct(
     'sunsensor' / BitsInteger(10)[3],
     'paneltempX+' / TempXp,
@@ -130,6 +184,14 @@ BOB = Struct(
     'paneltempY-' / TempYm,
     '3v3voltage' / V3v3,
     '3v3current' / BitsInteger(10),
+    '5voltage' / V5v,
+)
+
+# Nayif-1
+ASIB = Struct(
+    'sunsensor' / BitsInteger(10)[6],
+    '3v3voltage' / V3v3,
+    'imtquptime' / BitsInteger(20),
     '5voltage' / V5v,
 )
 
@@ -189,6 +251,7 @@ Ants = Struct(
     'deployment' / Flag[4],
     )
 
+# Also valid for Nayif-1
 SWFC1 = Struct(
     'seqnumber' / BitsInteger(24),
     'dtmfcmdcount' / BitsInteger(6),
@@ -330,13 +393,26 @@ WholeOrbitFC2 = BitStruct(
     Padding(6),
     )
 
+RealTimeNayif1 = BitStruct(
+    'eps' / EPSNayif1,
+    'imtq' / iMTQ,
+    'asib' / ASIB,
+    'rf' / RF,
+    'pa' / PA,
+    'ants' / Ants,
+    'sw' / SWFC1,
+)
+
 Frame = Struct(
     Embedded(Header),
+    'extheader' / If(lambda c: c.satid == 'extended', Byte),
     'realtime' / Switch(lambda c: c.satid, {
         'FC1EM' : RealTimeFC1,
         'FC1FM' : RealTimeFC1,
         'FC2' : RealTimeFC2,
-        'extended' : Bytes(55),
+        'extended' : Switch(lambda c: c.extheader, {
+            0x08 : RealTimeNayif1,
+            }, default = Bytes(54)),
         }),
     'payload' / Switch(lambda c: c.frametype[:2], {
         'WO' : Bytes(200),
